@@ -25,13 +25,13 @@ model FuelCellSubSystems
     Placement(visible = true, transformation(origin = {-6, 60}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {10, 90}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Fluid.Interfaces.FluidPort_b coolant_port_b(redeclare package Medium = Coolant_Medium) annotation(
     Placement(visible = true, transformation(origin = {6, 60}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-10, 90}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Hydrogen.SubSystemHydrogen subSystemHydrogen annotation(
+  VirtualFCS.SubSystems.Hydrogen.SubSystemHydrogen subSystemHydrogen annotation(
     Placement(visible = true, transformation(origin = {-60, 0}, extent = {{-15, -10}, {15, 10}}, rotation = 0)));
   VirtualFCS.SubSystems.Air.SubSystemAir subSystemAir annotation(
     Placement(visible = true, transformation(origin = {60, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Cooling.SubSystemCooling subSystemCooling annotation(
+  VirtualFCS.SubSystems.Cooling.SubSystemCooling subSystemCooling annotation(
     Placement(visible = true, transformation(origin = {0, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Electrochemical.Battery.BatterySystem batterySystem(C_bat_pack = 400,SOC_init = 0.9, V_max_bat_pack = 27, V_min_bat_pack = 23, V_nom_bat_pack = 25, m_bat_pack = 1) annotation(
+  VirtualFCS.Electrochemical.Battery.BatterySystem batterySystem(C_bat_pack = 400,SOC_init = 0.9, V_max_bat_pack = 27, V_min_bat_pack = 23, V_nom_bat_pack = 25, m_bat_pack = 1) annotation(
     Placement(visible = true, transformation(origin = {0, -70}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
 equation
   connect(contolInput[1], subSystemHydrogen.control) annotation(

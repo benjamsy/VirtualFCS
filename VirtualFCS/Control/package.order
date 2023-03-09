@@ -4,6 +4,8 @@ ChargeCounter
 DCMotorControlCompressor
 DCMotorControlPumpElectricDC
 DCMotorControlRecirculationBlower
+EMS_CDCS
+EMS_ECMS
 EMS_FC
 EnergyManagementSystem
 FuelCellSystemControl

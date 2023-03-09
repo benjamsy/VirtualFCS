@@ -23,7 +23,7 @@ model FuelCellSystem
   Real Power_stack(unit = "W") "Power delivered from the FC stack";
   Real Power_BOP(unit = "W") "Power consumed by the BOP components";
   Real eta_FC_sys(unit = "100") "Fuel cell system efficiency";
-  VirtualFCS.Electrochemical.Hydrogen.FuelCellStack fuelCellStack(H_FC_stack = H_FC_stack, I_rated_FC_stack = I_rated_FC_stack, L_FC_stack = L_FC_stack, W_FC_stack = W_FC_stack, m_FC_stack = m_FC_stack, vol_FC_stack = vol_FC_stack) annotation(
+  VirtualFCS.Electrochemical.Hydrogen.FuelCellStack fuelCellStack(H_FC_stack = H_FC_stack, I_rated_FC_stack = I_rated_FC_stack, L_FC_stack = L_FC_stack, N_FC_stack = N_FC_stack, W_FC_stack = W_FC_stack, i_L_FC_stack = i_L_FC_stack, m_FC_stack = m_FC_stack, vol_FC_stack = vol_FC_stack) annotation(
     Placement(visible = true, transformation(origin = {-1, 10}, extent = {{-26, -26}, {26, 26}}, rotation = 0)));
   Modelica.Electrical.Analog.Interfaces.PositivePin pin_p annotation(
     Placement(visible = true, transformation(origin = {20, 96}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {50, 90}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -51,7 +51,8 @@ equation
   Power_stack = fuelCellStack.pin_n.i * fuelCellStack.pin_p.v;
   Power_BOP = fuelCellSubSystems.batterySystem.pin_n.i * fuelCellSubSystems.batterySystem.pin_p.v;
   Power_system = Power_stack - Power_BOP;
-  eta_FC_sys = max((Power_system) / (286000 * (N_FC_stack * (fuelCellStack.pin_n.i + 0.000001) / (2 * 96485.3321))), 0.00001) * 100;
+//eta_FC_sys = max((Power_system) / (286000 * (N_FC_stack * (fuelCellStack.pin_n.i + 0.000001) / (2 * 96485.3321))), 0.00001) * 100;
+  eta_FC_sys = max((Power_system)/(119959.2*(N_FC_stack* 2.016 * (fuelCellStack.pin_n.i + 0.000001)/(2*96485.3321))), 0.00001)*100;
   connect(pin_p, fuelCellStack.pin_p) annotation(
     Line(points = {{20, 96}, {20, 36}, {9, 36}}, color = {0, 0, 255}));
   connect(fuelCellStack.port_b_Air, fuelCellSubSystems.air_port_a) annotation(
