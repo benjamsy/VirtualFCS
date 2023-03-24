@@ -47,7 +47,7 @@ model DriveCycle_experiment_testrun
   Real P(unit = "W");
   
   // *** INSTANTIATE COMPONENTS *** //
-  Modelica.Blocks.Sources.CombiTimeTable combiTimeTable(extrapolation = Modelica.Blocks.Types.Extrapolation.Periodic, fileName = filepath, smoothness = Modelica.Blocks.Types.Smoothness.ContinuousDerivative, table = fill(0.0, 0, 2), tableName = table_Name, tableOnFile = true) annotation(
+  Modelica.Blocks.Sources.CombiTimeTable combiTimeTable(extrapolation = Modelica.Blocks.Types.Extrapolation.Periodic, fileName = filepath, shiftTime = -200, smoothness = Modelica.Blocks.Types.Smoothness.ContinuousDerivative, table = fill(0.0, 0, 2), tableName = table_Name, tableOnFile = true) annotation(
     Placement(visible = true, transformation(origin = {-49, 0}, extent = {{-12, -12}, {12, 12}}, rotation = 0)));
   Modelica.Electrical.Analog.Sources.SignalCurrent signalCurrent annotation(
     Placement(visible = true, transformation(origin = {50, 0}, extent = {{10, -10}, {-10, 10}}, rotation = 90)));

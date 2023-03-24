@@ -56,26 +56,34 @@ model PowerTrainECMS_experiment_testrun
   Real eta_drivetrain(unit = "100") "Efficiency of the drivetrain";
   Real eta_DC_DC(unit = "100") = 100 "Efficiency of the DC/DC converter";
   Modelica.Blocks.Sources.RealExpression getPowerRequest(y = converter.powerDC2) annotation(
-    Placement(visible = true, transformation(origin = {-114, -24}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Placement(visible = true, transformation(origin = {-114, -2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.RealExpression getBopPower(y = fCSystem.Power_BOP) annotation(
     Placement(visible = true, transformation(origin = {-114, 16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.RealExpression getFCTemp(y = fCSystem.fuelCellStack.temperatureSensor.T) annotation(
     Placement(visible = true, transformation(origin = {-114, 36}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Sources.RealExpression getpH2(y = fCSystem.fuelCellStack.p_H2) annotation(
+  Modelica.Blocks.Sources.RealExpression getpH2(y = fCSystem.fuelCellStack.p_H2*100000) annotation(
     Placement(visible = true, transformation(origin = {-114, 58}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.RealExpression getBattVoltage(y = batterySystem.pin_p.v) annotation(
     Placement(visible = true, transformation(origin = {-114, -56}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.RealExpression getBattCurrent(y = batterySystem.pin_n.i) annotation(
     Placement(visible = true, transformation(origin = {-114, -76}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Sources.RealExpression getpO2(y = fCSystem.fuelCellStack.p_O2) annotation(
+  Modelica.Blocks.Sources.RealExpression getpO2(y = fCSystem.fuelCellStack.p_O2*100000)  annotation(
     Placement(visible = true, transformation(origin = {-114, -96}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  VirtualFCS.ComponentTesting.ECMSTest.FCSystem fCSystem(I_rated_FC_stack = I_rated_FC_stack, N_FC_stack = N_FC_stack, i_L_FC_stack = i_L_FC_stack) annotation(
+  VirtualFCS.ComponentTesting.ECMSTest.FCSystem fCSystem(I_rated_FC_stack = I_rated_FC_stack, N_FC_stack = N_FC_stack, V_tank_H2 = V_tank_H2, i_L_FC_stack = i_L_FC_stack, p_tank_H2 = p_tank_H2) annotation(
     Placement(visible = true, transformation(origin = {70, -72}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Math.ContinuousMean continuousMean(u = C_fc_real);
-  VirtualFCS.ComponentTesting.ECMS_experiment_testrun.ECMS_experiment_testrun eCMS_experiment_testrun(I_max_FC_stack = i_L_FC_stack, I_max_batt = 360,I_min_FC_stack = I_nom_FC_stack - 70, I_min_batt = -180, I_nom_FC_stack = I_rated_FC_stack, SOC_max = 0.9, SOC_min = 0.7, n_cell = N_FC_stack)  annotation(
+  VirtualFCS.ComponentTesting.ECMS_experiment_testrun.ECMS_experiment_testrun eCMS_experiment_testrun(I_max_FC_stack = 130, I_max_batt = 360,I_min_FC_stack = 20, I_min_batt = -180, I_nom_FC_stack = 100, SOC_max = 0.75, SOC_min = 0.25, n_cell = N_FC_stack, t_const = 0)  annotation(
     Placement(visible = true, transformation(origin = {-60, -28}, extent = {{-20, -10}, {20, 10}}, rotation = 0)));
-  Modelica.Blocks.Math.Gain gain(k = 100)  annotation(
-    Placement(visible = true, transformation(origin = {-135, -33}, extent = {{-7, -7}, {7, 7}}, rotation = 0)));
+  Modelica.Blocks.Math.MultiProduct multiProduct(nu = 2)  annotation(
+    Placement(visible = true, transformation(origin = {58, -12}, extent = {{-6, -6}, {6, 6}}, rotation = 180)));
+  Modelica.Blocks.Sources.RealExpression batt_V(y = batterySystem.pin_p.v) annotation(
+    Placement(visible = true, transformation(origin = {146, -2}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+  Modelica.Blocks.Sources.RealExpression fc_V(y = fCSystem.pin_p.v) annotation(
+    Placement(visible = true, transformation(origin = {146, -30}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+  Modelica.Blocks.Math.Division division annotation(
+    Placement(visible = true, transformation(origin = {104, -16}, extent = {{10, -10}, {-10, 10}}, rotation = 0)));
+  Modelica.Blocks.Math.Gain gain1(k = -1)  annotation(
+    Placement(visible = true, transformation(origin = {-83, -77}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
 equation
   C_fc_real = (Power_FC)/(eCMS_experiment_testrun.LHV_H2*(fCSystem.eta_FC_sys*0.01));
   k_b_real = 1 - 2*eCMS_experiment_testrun.mu*((eCMS_experiment_testrun.SOC - 0.5*(eCMS_experiment_testrun.SOC_min + eCMS_experiment_testrun.SOC_max))/((eCMS_experiment_testrun.SOC_min - eCMS_experiment_testrun.SOC_max)));
@@ -109,26 +117,32 @@ equation
     Line(points = {{32, -54}, {66, -54}, {66, -62}}, color = {0, 0, 255}));
   connect(fCSystem.pin_p, dC_converter.pin_pBus) annotation(
     Line(points = {{76, -62}, {76, -34}, {32, -34}}, color = {0, 0, 255}));
-  connect(eCMS_experiment_testrun.controlOutputFuelCellCurrent, dC_converter.I_Ref) annotation(
-    Line(points = {{-38, -28}, {22, -28}, {22, -32}}, color = {0, 0, 127}));
-  connect(getPowerRequest.y, eCMS_experiment_testrun.powerRequest) annotation(
-    Line(points = {{-102, -24}, {-82, -24}}, color = {0, 0, 127}));
   connect(getBattVoltage.y, eCMS_experiment_testrun.batteryVoltage) annotation(
     Line(points = {{-102, -56}, {-70, -56}, {-70, -40}}, color = {0, 0, 127}));
-  connect(getBattCurrent.y, eCMS_experiment_testrun.batteryCurrent) annotation(
-    Line(points = {{-102, -76}, {-60, -76}, {-60, -40}}, color = {0, 0, 127}));
   connect(getpO2.y, eCMS_experiment_testrun.p_O2) annotation(
     Line(points = {{-102, -96}, {-50, -96}, {-50, -40}}, color = {0, 0, 127}));
-  connect(getBopPower.y, eCMS_experiment_testrun.bopPower) annotation(
-    Line(points = {{-102, 16}, {-66, 16}, {-66, -16}}, color = {0, 0, 127}));
+  connect(eCMS_experiment_testrun.controlOutputFuelCellCurrent, multiProduct.u[1]) annotation(
+    Line(points = {{-38, -28}, {-34, -28}, {-34, 10}, {74, 10}, {74, -12}, {64, -12}}, color = {0, 0, 127}));
+  connect(division.y, multiProduct.u[2]) annotation(
+    Line(points = {{94, -16}, {64, -16}, {64, -12}}, color = {0, 0, 127}));
+  connect(batt_V.y, division.u1) annotation(
+    Line(points = {{136, -2}, {128, -2}, {128, -10}, {116, -10}}, color = {0, 0, 127}));
+  connect(fc_V.y, division.u2) annotation(
+    Line(points = {{136, -30}, {128, -30}, {128, -22}, {116, -22}}, color = {0, 0, 127}));
+  connect(multiProduct.y, dC_converter.I_Ref) annotation(
+    Line(points = {{50, -12}, {22, -12}, {22, -32}}, color = {0, 0, 127}));
+  connect(getBattCurrent.y, gain1.u) annotation(
+    Line(points = {{-102, -76}, {-88, -76}}, color = {0, 0, 127}));
+  connect(gain1.y, eCMS_experiment_testrun.batteryCurrent) annotation(
+    Line(points = {{-78, -76}, {-60, -76}, {-60, -40}}, color = {0, 0, 127}));
+  connect(batterySystem.sensorOutput, eCMS_experiment_testrun.sensorInputSOC) annotation(
+    Line(points = {{-38, -72}, {-90, -72}, {-90, -28}, {-82, -28}}, color = {0, 0, 127}));
+  connect(getPowerRequest.y, eCMS_experiment_testrun.powerRequest) annotation(
+    Line(points = {{-102, -2}, {-70, -2}, {-70, -16}}, color = {0, 0, 127}));
   connect(getFCTemp.y, eCMS_experiment_testrun.fcTemperature) annotation(
-    Line(points = {{-102, 36}, {-54, 36}, {-54, -16}}, color = {0, 0, 127}));
+    Line(points = {{-102, 36}, {-60, 36}, {-60, -16}}, color = {0, 0, 127}));
   connect(getpH2.y, eCMS_experiment_testrun.p_H2) annotation(
-    Line(points = {{-102, 58}, {-46, 58}, {-46, -16}}, color = {0, 0, 127}));
-  connect(batterySystem.sensorOutput, gain.u) annotation(
-    Line(points = {{-38, -72}, {-92, -72}, {-92, -64}, {-158, -64}, {-158, -32}, {-144, -32}}, color = {0, 0, 127}));
-  connect(gain.y, eCMS_experiment_testrun.sensorInputSOC) annotation(
-    Line(points = {{-128, -32}, {-82, -32}}, color = {0, 0, 127}));
+    Line(points = {{-102, 58}, {-50, 58}, {-50, -16}}, color = {0, 0, 127}));
 protected
   annotation(
     Icon(graphics = {Text(origin = {-4, -12}, textColor = {0, 0, 255}, extent = {{-150, 120}, {150, 150}}, textString = "%name"), Text(origin = {17, 123}, extent = {{3, 5}, {-3, -5}}, textString = "text"), Rectangle(fillColor = {0, 60, 101}, fillPattern = FillPattern.Solid, lineThickness = 1.5, extent = {{-100, 100}, {100, -100}}, radius = 35), Polygon(fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, points = {{-16.7, 56.9}, {19.3, 56.9}, {5, 11.8}, {28.4, 11.8}, {-18.7, -56.5}, {-20, -56}, {-5.3, -6}, {-28.5, -6}, {-16.7, 56.9}})}, coordinateSystem(initialScale = 0.1)));

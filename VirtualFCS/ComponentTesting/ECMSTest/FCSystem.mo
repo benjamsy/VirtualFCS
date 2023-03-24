@@ -45,11 +45,11 @@ model FCSystem
     Placement(visible = true, transformation(origin = {-80, 0}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
   VirtualFCS.ComponentTesting.ECMSTest.FCSubSystems fCSubSystems annotation(
     Placement(visible = true, transformation(origin = {-8.88178e-16, -60}, extent = {{-26, -26}, {26, 26}}, rotation = 0)));
-  Electrochemical.Hydrogen.FuelCellStack fuelCellStack(H_FC_stack = H_FC_stack, I_rated_FC_stack = I_rated_FC_stack, L_FC_stack = L_FC_stack, N_FC_stack = N_FC_stack, W_FC_stack = W_FC_stack, i_L_FC_stack = i_L_FC_stack, m_FC_stack = m_FC_stack, vol_FC_stack = vol_FC_stack) annotation(
+  Electrochemical.Hydrogen.FuelCellStack fuelCellStack(H_FC_stack = H_FC_stack, I_rated_FC_stack = I_rated_FC_stack, L_FC_stack = L_FC_stack, N_FC_stack = N_FC_stack, W_FC_stack = W_FC_stack, m_FC_stack = m_FC_stack, vol_FC_stack = vol_FC_stack) annotation(
     Placement(visible = true, transformation(origin = {-1, 10}, extent = {{-26, -26}, {26, 26}}, rotation = 0)));
 equation
   Power_stack = fuelCellStack.pin_n.i*fuelCellStack.pin_p.v;
-  //Power_BOP = 500;
+//Power_BOP = 500;
   Power_BOP = 0.1 * Power_stack;
   Power_system = Power_stack - Power_BOP;
 //eta_FC_sys = max((Power_system)/(286000*(N_FC_stack*(fuelCellStack.pin_n.i + 0.000001)/(2*96485.3321))), 0.00001)*100;

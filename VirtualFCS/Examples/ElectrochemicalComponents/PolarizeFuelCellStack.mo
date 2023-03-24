@@ -7,9 +7,9 @@ model PolarizeFuelCellStack "Generate a polarization curve for a fuel cell stack
   replaceable package Coolant_Medium = Modelica.Media.Water.ConstantPropertyLiquidWater;
   inner Modelica.Fluid.System system annotation(
     Placement(visible = true, transformation(origin = {-90, -90}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Electrical.Analog.Sources.RampCurrent rampCurrent(I = 750, duration = 500, startTime = 100) annotation(
+  Modelica.Electrical.Analog.Sources.RampCurrent rampCurrent(I = 280, duration = 500, offset = 0, startTime = 10) annotation(
     Placement(visible = true, transformation(origin = {0, 60}, extent = {{10, -10}, {-10, 10}}, rotation = 0)));
-  VirtualFCS.Electrochemical.Hydrogen.FuelCellSystem fuelCellSystem annotation(
+  VirtualFCS.Electrochemical.Hydrogen.FuelCellSystem fuelCellSystem(I_nom_FC_stack = 450)  annotation(
     Placement(visible = true, transformation(origin = {0, -2}, extent = {{-22, -22}, {22, 22}}, rotation = 0)));
 equation
   connect(rampCurrent.n, fuelCellSystem.pin_n) annotation(
