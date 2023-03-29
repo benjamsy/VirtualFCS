@@ -11,60 +11,57 @@ model EMS_ECMS
   import OMCallPythonAdvanced.Py.run;
   import OMCallPythonAdvanced.Py.nineRealArgumentsReturnReal;
   import Modelica.Utilities.Streams.print;
+  import SI = Modelica.Units.SI;
+  import NonSI = Modelica.Units.NonSI;
   //---- Parameters ----
   parameter Real ramp_up(unit = "1/s") = 20 "FC stack current ramp up rate" annotation(
     Dialog(group = "Control Parameters"));
   //---- Fuel cell ----
-  parameter Real I_min_FC_stack(unit = "A") "FC stack minimum operating current" annotation(
+  parameter SI.Current I_min_FC_stack "FC stack minimum operating current" annotation(
     Dialog(group = "Powertrain Parameters"));
-  parameter Real I_nom_FC_stack(unit = "A") "FC stack nominal operating current" annotation(
-    Dialog(group = "Powertrain Parameters"));
-  parameter Real I_max_FC_stack(unit = "A") "FC stack maximum current" annotation(
+  parameter SI.Current I_max_FC_stack "FC stack maximum current" annotation(
     Dialog(group = "Powertrain Parameters"));
   parameter Real n_cell(unit = "1") "Number of cells in fuel cell stack" annotation(
     Dialog(group = "Powertrain Parameters"));
   Real LHV_H2(unit = "Ws/g") = 119959.2 "Hydrogen lower heating value";
-  Real R = 8.314 "Universal gas constant";
-  Real F = 96485.3321 "Faradays number";
-  Real p_0 = 100000;
-  Real i_0_FC_stack(unit = "A") = 0.0000193 "FC stack cell exchange current";
-  Real i_x_FC_stack(unit = "A") = 0.001 "FC stack cell cross-over current";
-  Real b_1_FC_stack(unit = "V/dec") = 0.0985 "FC stack cell Tafel slope";
-  Real b_2_FC_stack(unit = "V/dec") = 0.0985 "FC stack cell trasport limitation factor";
-  Real R_O_FC_stack(unit = "Ohm") = 0.0923 "FC stack cell ohmic resistance";
-  Real A_FC_surf(unit = "m2") = 285 "FC stack surface area";
+  import R = Modelica.Constants.R; // Universal gas constant
+  import F = Modelica.Constants.F; // Faradays number
+  SI.AbsolutePressure p_0 = 100000;
+  SI.Current i_0_FC_stack = 0.0000193 "FC stack cell exchange current";
+  SI.Current i_x_FC_stack = 0.001 "FC stack cell cross-over current";
+  SI.Resistance R_O_FC_stack = 0.0923 "FC stack cell ohmic resistance";
+  NonSI.Area_cm A_FC_surf = 285 "FC stack surface area";
   Real i_L_FC_stack(unit"A/cm2") = 1.12 "FC stack cell maximum limiting current A/cm2";
-  Real U_0(unit = "V") = 1.229 "Theoretical maximum voltage for a single cell";
-  Real fc_V(unit = "V") "FC voltage calculated from FC current output of optimization";
-  final Real eta_fc_sys_estimate(unit = "1", start = 0) "Polynomial fit fuel cell system efficiency";
-  final Real pH2(unit = "bar") "Fuel inlet pressure";
-  final Real pO2(unit = "bar") "Air inlet pressure";
+  SI.Voltage U_0 = 1.229 "Theoretical maximum voltage for a single cell";
+  SI.Voltage fc_V "FC voltage calculated from FC current output of optimization";
+  final SI.Efficiency eta_fc_sys_estimate "Polynomial fit fuel cell system efficiency";
+  final NonSI.Pressure_bar pH2 "Fuel inlet pressure";
+  final NonSI.Pressure_bar pO2 "Air inlet pressure";
   // Used to calculate test /and control parameters. Will not matter if removed.
   //---- Battery ----
   parameter Real SOC_min(unit = "1") = 0.4 "Minimum allowed SOC of battery" annotation(
     Dialog(group = "Control Parameters"));
   parameter Real SOC_max(unit = "1") = 0.7 "Maximum allowed SOC of battery" annotation(
     Dialog(group = "Control Parameters"));
-  parameter Real I_min_batt(unit = "A") = 500 "Battery min current" annotation(
-    Dialog(group = "Control Parameters"));
-  parameter Real I_max_batt(unit = "A") = 500 "Battery max current" annotation(
-    Dialog(group = "Control Parameters"));
-  parameter Real OCV(unit = "V") = 49.17 "Open circuit voltage battery" annotation(
+  parameter SI.Current I_min_batt = -500 "Battery min current" annotation(
+    Dialog(group = "Powertrain Parameters"));
+  parameter SI.Current I_max_batt = 500 "Battery max current" annotation(
+    Dialog(group = "Powertrain Parameters"));
+  parameter SI.Voltage OCV = 49.17 "Open circuit voltage battery" annotation(
     Dialog(group = "Powertrain Parameters")); // Define this prior to experiment!
   Real SOC(unit = "1") "State of charge of battery";
-  Real batt_V(unit = "V") "Battery voltage real";
-  Real batt_I(unit = "A") "Battery Current real";
-  Real OCV_batt(unit = "V") "Open circuit voltage of the battery";
-  parameter Real internalResistance(unit = "Ohm") = 0.028 "Internal resistance of battery real time" annotation(
+  SI.Voltage batt_V "Battery voltage real";
+  SI.Current batt_I "Battery Current real";
+  parameter SI.Resistance internalResistance = 0.6e-3 "Internal resistance of battery" annotation(
     Dialog(group = "Powertrain Parameters")); //Define this prior to experiment!!
-  Real batterySetCurrent(unit = "A") "Battery set current calculated by the optimization solver";
+  SI.Current batterySetCurrent "Battery set current calculated by the optimization solver";
   //---- Other side of DCDC ----
-  final Real I_min_fc_dcdc_out "The minimum allowed current out of the DCDC converter";
-  final Real I_max_fc_dcdc_out "The maximum allowed current out of the DCDC converter";
-  final Real set_current_dcdc_out "The set current out of the DCDC converter";
+  final SI.Current I_min_fc_dcdc_out "The minimum allowed current out of the DCDC converter";
+  final SI.Current I_max_fc_dcdc_out "The maximum allowed current out of the DCDC converter";
+  final SI.Current set_current_dcdc_out "The set current out of the DCDC converter";
   // -- Battery charging/discharging efficiencies --
-  final Real eta_b_chr(unit = "1", start = 1) "Battery charge efficiency";
-  final Real eta_b_dischr(unit = "1", start = 1) "Battery discharge efficiency";
+  final SI.Efficiency eta_b_chr(start = 1) "Battery charge efficiency";
+  final SI.Efficiency eta_b_dischr(start = 1) "Battery discharge efficiency";
   final Integer eta_b_chr_counter(start = 1) "Counts the number of charge efficiencies calculated";
   final Real eta_b_chr_sum(start = 1);
   final Real eta_b_chr_avg(start = 1) "Battery charge efficiency average";
@@ -74,31 +71,30 @@ model EMS_ECMS
   //---- Time
   Real t = time;
   final Real t_comp(start = 0);
-  parameter Integer t_const = 50 "FC should not start before this time" annotation(
+  parameter Integer t_const = 0 "FC should not start before this time" annotation(
     Dialog(group = "Control Parameters"));
   // Assumtion on start-up procedure. This is not modelled, so FC is just turned off this time.
   //---- Necessary for ECMS ----
   final Real sigma(start = 1);
   Real mu(unit = "1") = 1;
-  //Real mu(unit = "1") = 3;
-  final Real powerD(start = 0, unit = "W") "Power request";
-  final Real currentD(start = 0, unit = "A") "Current request";
+  final SI.Power powerD(start = 0) "Power request";
+  final SI.Current currentD(start = 0) "Current request";
   final Real k_b_f(start = 1);
-  final Real C_fc(start = 0);
-  final Real C_batt(start = 0);
-  final Real C_batt_2(start = 0); // C_batt*k_b
-  final Real C(start = 0);
+  final NonSI.MassFlowRate_gps C_fc(start = 0);
+  final NonSI.MassFlowRate_gps C_batt(start = 0);
+  final NonSI.MassFlowRate_gps C_batt_2(start = 0); // C_batt*k_b
+  final NonSI.MassFlowRate_gps C(start = 0);
   final Real C_sum(start = 0);
   Modelica.Blocks.Math.ContinuousMean C_a(u = C); // Average total consumption
   Modelica.Blocks.Math.ContinuousMean C_a_fc(u = C_fc); // Average fc consumption
   Modelica.Blocks.Math.ContinuousMean C_a_batt(u = C_batt); // Average batt consumption
-  final Real C_avg;
-  final Real C_avg_fc;
-  final Real C_avg_batt;
+  final NonSI.MassFlowRate_gps C_avg;
+  final NonSI.MassFlowRate_gps C_avg_fc;
+  final NonSI.MassFlowRate_gps C_avg_batt;
   //---- Set current variable ---- Three is necessary to ensure constraints are maintained
-  final Real set_current_1(start = 0) "Fuel cell set current";
-  final Real set_current_2(start = 0) "Fuel cell set current";
-  final Real set_current_3(start = 0) "Fuel cell set current";
+  final SI.Current set_current_1(start = 0) "Fuel cell set current";
+  final SI.Current set_current_2(start = 0) "Fuel cell set current";
+  final SI.Current set_current_3(start = 0) "Fuel cell set current";
   final Boolean turn_off(start = false);
   // Boolean to control if the FC is on or off.
   //---- Python Handle ----
@@ -114,14 +110,9 @@ def ECMS_main(powerDemand, SoC, empty, b_V, sig, empty1, fc_temp, pH2, pO2):
 
 \t bounds = Bounds([0, float(" + String(I_min_batt) + ")], [float(" + String(I_max_FC_stack - 1) + "), float(" + String(I_max_batt) + ")])
 
-\t #cons = {'type':'eq', 'fun' : lambda y : ((float(" + String(n_cell) + ") * (float(" + String(U_0) + ") - float(" + String(R) + ") * fc_temp / (2 * float(" + String(F) + ")) * math.log(1 / (pH2 / float(" + String(p_0) + ") * (pO2 / float(" + String(p_0) + "))**0.5)) - float(" + String(b_1_FC_stack) + ") * math.log10((y[0] + float(" + String(i_x_FC_stack) + ")) / float(" + String(i_0_FC_stack) + ")) + float(" + String(b_2_FC_stack) + ") * math.log10(1 - (y[0] + float(" + String(i_x_FC_stack) + ")) / float(" + String(I_max_FC_stack) + ")))) * y[0]) + (b_V * y[1]) - powerDemand}
-
 \t cons = {'type':'eq', 'fun' : lambda y : (float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(y[0]/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(max(y[0], 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(y[0]/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + ")))) * y[0]) + (b_V * y[1]) - powerDemand}
 
-
-\t #res = scipy.optimize.minimize(lambda x : ((((float(" + String(n_cell) + ") * (float(" + String(U_0) + ") - float(" + String(R) + ") * fc_temp / (2 * float(" + String(F) + ")) * math.log(1 / (pH2 / float(" + String(p_0) + ") * (pO2 / float(" + String(p_0) + "))**0.5)) - float(" + String(b_1_FC_stack) + ") * math.log10((x[0] + float(" + String(i_x_FC_stack) + ")) / float(" + String(i_0_FC_stack) + ")) + float(" + String(b_2_FC_stack) + ") * math.log10(1 - (x[0] + float(" + String(i_x_FC_stack) + ")) / float(" + String(I_max_FC_stack) + ")))) * x[0]) / (float(" + String(LHV_H2) + ") * (-2.28032634348 * 10**(-16) * x[0]**(6) + 5.29567212538 * 10**(-13) * x[0]**(5) - 4.83584705561 * 10**(-10) * x[0]**(4) + 2.19811746997 * 10**(-7) * x[0]**(3) -5.08697130216 * 10**(-5) * x[0]**(2) + 4.7311314221 * 10**(-3) * x[0] + 0.427083655202))) + (1 - 2*float(" + String(mu) + ")*(SoC - 0.5*(float(" + String(SOC_max) + ") + float(" + String(SOC_min) + ")))/(float(" + String(SOC_max) + ") - float(" + String(SOC_min) + "))) * ((float(sig) * float(b_V) * x[1]) / (float(" + String(LHV_H2) + ")))), numpy.array([0, 0]), method='trust-constr', bounds=bounds, constraints=cons, options = {'maxiter':750})
-
-\t res = scipy.optimize.minimize(lambda x : (((float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(x[0]/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(abs(max(x[0], 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(x[0]/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + "))))) * x[0]) / (float(" + String(LHV_H2) + ") * (-2.28032634348 * 10**(-16) * x[0]**(6) + 5.29567212538 * 10**(-13) * x[0]**(5) - 4.83584705561 * 10**(-10) * x[0]**(4) + 2.19811746997 * 10**(-7) * x[0]**(3) -5.08697130216 * 10**(-5) * x[0]**(2) + 4.7311314221 * 10**(-3) * x[0] + 0.427083655202))) + (1 - 2*float(" + String(mu) + ")*(SoC - 0.5*(float(" + String(SOC_max) + ") + float(" + String(SOC_min) + ")))/(float(" + String(SOC_max) + ") - float(" + String(SOC_min) + "))) * ((float(sig) * float(b_V) * x[1]) / (float(" + String(LHV_H2) + ")))), numpy.array([0, 0]), method='trust-constr', bounds=bounds, constraints=cons, options = {'maxiter':500})
+\t res = scipy.optimize.minimize(lambda x : (((float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(x[0]/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(abs(max(x[0], 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(x[0]/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + "))))) * x[0]) / (float(" + String(LHV_H2) + ") * (-2.28032634348 * 10**(-16) * x[0]**(6) + 5.29567212538 * 10**(-13) * x[0]**(5) - 4.83584705561 * 10**(-10) * x[0]**(4) + 2.19811746997 * 10**(-7) * x[0]**(3) -5.08697130216 * 10**(-5) * x[0]**(2) + 4.7311314221 * 10**(-3) * x[0] + 0.427083655202))) + (1 - 2*float(" + String(mu) + ")*(SoC - 0.5*(float(" + String(SOC_max) + ") + float(" + String(SOC_min) + ")))/(float(" + String(SOC_max) + ") - float(" + String(SOC_min) + "))) * ((float(sig) * float(b_V) * x[1]) / (float(" + String(LHV_H2) + ")))), numpy.array([0, 0]), method='trust-constr', bounds=bounds, constraints=cons, options = {'maxiter':750})
 
 \t return float(res.x[0])
 
@@ -154,9 +145,9 @@ def ECMS_main(powerDemand, SoC, empty, b_V, sig, empty1, fc_temp, pH2, pO2):
     Placement(visible = true, transformation(origin = {100, -120}, extent = {{-20, -20}, {20, 20}}, rotation = 90), iconTransformation(origin = {100, -120}, extent = {{-20, -20}, {20, 20}}, rotation = 90)));
   Modelica.Blocks.Continuous.Filter filter(analogFilter = Modelica.Blocks.Types.AnalogFilter.CriticalDamping, f_cut = 0.7, order = 5)  annotation(
     Placement(visible = true, transformation(origin = {0, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Real battPowerV2;
-  Real fcPowerV2;
-  Real battFcPower;
+  SI.Power battPowerV2;
+  SI.Power fcPowerV2;
+  SI.Power battFcPower;
   Real testConstrain; // Should be zero
   
 initial equation
@@ -167,23 +158,20 @@ initial equation
 equation
 //---- Redefine variables ----
   SOC = sensorInputSOC;
-  batt_V = max(batteryVoltage, 1);
+  batt_V = max(batteryVoltage, 20);
   powerD = powerRequest;
-  OCV_batt = OCV;
   batt_I = - batteryCurrent;
   eta_fc_sys_estimate = -2.28032634348 * 10^(-16)* set_current_3^6 + 5.29567212538 * 10^(-13) * set_current_3^5 - 4.83584705561 * 10^(-10) * set_current_3^4 + 2.19811746997 * 10^(-7) * set_current_3^3 -5.08697130216 * 10^(-5) * set_current_3^2 + 4.7311314221 * 10^(-3) * set_current_3 + 0.427083655202;
-  
   pH2 = max(p_H2 * 0.00001, 0.000001);
   pO2 = max(0.2 * p_O2 * 0.00001, 0.000001);
 
 //---- Recalculations ----
-  //fc_V = n_cell*(U_0 - R*fcTemperature/(2*F)*log(1/(pH2/p_0*(pO2/p_0)^0.5)) - b_1_FC_stack*log10((set_current_1 + i_x_FC_stack)/i_0_FC_stack) + b_2_FC_stack*log10(1 - (set_current_1 + i_x_FC_stack)/I_max_FC_stack)); // Calculates FC voltage from the set_current from optimization algorithm
   
   if turn_off then
     fc_V = n_cell*(U_0 - R*fcTemperature/(2*F)*log(pH2*(pO2^0.5)) - (0.85*0.001)*(fcTemperature - 298.15) - R_O_FC_stack*(0/A_FC_surf) - (R*fcTemperature)/(2*F*0.3419)*log(abs(max(0,0.001)/A_FC_surf)/i_0_FC_stack) + (R*1.4672*fcTemperature)/(2*F)*log(1-(abs(0/A_FC_surf)/i_L_FC_stack)));
   else
-    fc_V = n_cell*(U_0 - R*fcTemperature/(2*F)*log(pH2*(pO2^0.5)) - (0.85*0.001)*(fcTemperature - 298.15) - R_O_FC_stack*(max(set_current_1, I_min_FC_stack)/A_FC_surf) - (R*fcTemperature)/(2*F*0.3419)*log(abs(max(max(set_current_1, I_min_FC_stack),0.001)/A_FC_surf)/i_0_FC_stack) + (R*1.4672*fcTemperature)/(2*F)*log(1-(abs(max(set_current_3, I_min_FC_stack)/A_FC_surf)/i_L_FC_stack)));
-  end if;
+    fc_V = n_cell*(U_0 - R*fcTemperature/(2*F)*log(pH2*(pO2^0.5)) - (0.85*0.001)*(fcTemperature - 298.15) - R_O_FC_stack*(max(set_current_1, I_min_FC_stack)/A_FC_surf) - (R*fcTemperature)/(2*F*0.3419)*log(abs(max(max(set_current_1, I_min_FC_stack),0.001)/A_FC_surf)/i_0_FC_stack) + (R*1.4672*fcTemperature)/(2*F)*log(1-(abs(max(set_current_1, I_min_FC_stack)/A_FC_surf)/i_L_FC_stack)));
+  end if; // This if-else recalculates what the fuel cell voltage should be. It will not be completly accurate due to dynamic mechanics
   
   currentD = powerD/batt_V; // Calculates the current demand (on the battery side of converters)
   batterySetCurrent = currentD - (fcPowerV2/batt_V); // Calculates the "real" battery set current inside the optimization solver
@@ -201,30 +189,32 @@ equation
   C_avg_fc = C_a_fc.y; // Average fc consumption
   C_avg_batt = C_a_batt.y; // Average batt consumption
  
-  //---- Out of DCDC converter ----
-  I_min_fc_dcdc_out = (I_min_FC_stack * n_cell*(U_0 - R*fcTemperature/(2*F)*log(pH2*(pO2^0.5)) - (0.85*0.001)*(fcTemperature - 298.15) - R_O_FC_stack*(I_min_FC_stack/A_FC_surf) - (R*fcTemperature)/(2*F*0.3419)*log(abs(I_min_FC_stack/A_FC_surf)/i_0_FC_stack) + (R*1.4672*fcTemperature)/(2*F)*log(1-(abs(I_min_FC_stack/A_FC_surf)/i_L_FC_stack)))) / (batt_V);
+  //---- Recalculate from FC side of DCDC converter to battery side ----
+  I_min_fc_dcdc_out = (I_min_FC_stack * n_cell*(U_0 - R*fcTemperature/(2*F)*log(pH2*(pO2^0.5)) - (0.85*0.001)*(fcTemperature - 298.15) - R_O_FC_stack*(I_min_FC_stack/A_FC_surf) - (R*fcTemperature)/(2*F*0.3419)*log(abs(I_min_FC_stack/A_FC_surf)/i_0_FC_stack) + (R*1.4672*fcTemperature)/(2*F)*log(1-(abs(I_min_FC_stack/A_FC_surf)/i_L_FC_stack)))) / (batt_V); // Calculates the minimum set current for the fuel cell - on the battery side of the DCDC converter
   
-  I_max_fc_dcdc_out = ((I_max_FC_stack - 1) * n_cell*(U_0 - R*fcTemperature/(2*F)*log(pH2*(pO2^0.5)) - (0.85*0.001)*(fcTemperature - 298.15) - R_O_FC_stack*(I_max_FC_stack/A_FC_surf) - (R*fcTemperature)/(2*F*0.3419)*log(abs(I_max_FC_stack/A_FC_surf)/i_0_FC_stack) + (R*1.4672*fcTemperature)/(2*F)*log(1-(abs(I_max_FC_stack/A_FC_surf)/i_L_FC_stack)))) / (batt_V);
+  I_max_fc_dcdc_out = ((I_max_FC_stack - 1) * n_cell*(U_0 - R*fcTemperature/(2*F)*log(pH2*(pO2^0.5)) - (0.85*0.001)*(fcTemperature - 298.15) - R_O_FC_stack*(I_max_FC_stack/A_FC_surf) - (R*fcTemperature)/(2*F*0.3419)*log(abs(I_max_FC_stack/A_FC_surf)/i_0_FC_stack) + (R*1.4672*fcTemperature)/(2*F)*log(1-(abs(I_max_FC_stack/A_FC_surf)/i_L_FC_stack)))) / (batt_V); // Calculates the maximum set current for the fuel cell - on the battery side of the DCDC converter
   
-  set_current_dcdc_out = (set_current_1 * fc_V) / (batt_V);
+  set_current_dcdc_out = (set_current_1 * fc_V) / (batt_V); // Calculates the set current for the fuel cell - on the battery side of the DCDC converter
   
+  //---- If-else logic to calculate battery charging/discharing efficiencies ----
   if batt_I >= 0 then
 // battery is discharging, from: https://doi.org/10.1016/j.conengprac.2011.06.008
-    eta_b_dischr = 0.5*(1 + sqrt(1 - 4*internalResistance*batt_I*batt_V/OCV_batt^2));
+    eta_b_dischr = 0.5*(1 + sqrt(1 - 4*internalResistance*batt_I*batt_V/OCV^2));
     eta_b_chr = 1;
   elseif batt_I < 0 then
 // battery is charging
-    eta_b_chr = 2/(1 + sqrt(1 - 4*internalResistance*batt_I*batt_V/OCV_batt^2));
+    eta_b_chr = 2/(1 + sqrt(1 - 4*internalResistance*batt_I*batt_V/OCV^2));
     eta_b_dischr = 1;
   else
     eta_b_chr = 1;
     eta_b_dischr = 1;
   end if;
+  
+  //---- When statement to avoide long loops ----
   when t >= pre(t_comp) + 1 then
-// Python program is only run 1 time each second to reduce runtime
     t_comp = pre(t_comp) + 1;
     if batt_I < 0 then
-// Battery is Charging
+      // Battery is Charging
       eta_b_chr_counter = pre(eta_b_chr_counter) + 1;
       eta_b_chr_sum = pre(eta_b_chr_sum) + eta_b_chr;
       eta_b_chr_avg = eta_b_chr_sum/eta_b_chr_counter;
@@ -233,7 +223,7 @@ equation
       eta_b_dischr_avg = pre(eta_b_dischr_avg);
       sigma = eta_b_dischr_avg*eta_b_chr;
     else
-// Battery is Discharging
+      // Battery is Discharging
       eta_b_dischr_counter = pre(eta_b_dischr_counter) + 1;
       eta_b_dischr_sum = pre(eta_b_dischr_sum) + eta_b_dischr;
       eta_b_dischr_avg = eta_b_dischr_sum/eta_b_dischr_counter;
@@ -242,10 +232,11 @@ equation
       eta_b_chr_avg = pre(eta_b_chr_avg);
       sigma = 1/(eta_b_chr_avg*eta_b_dischr);
     end if;
+    //---- The core of ECMS, the cost function is ran ----
     set_current_1 = Py.nineRealArgumentsReturnReal(pyHandle, powerD, SOC, 1, batt_V, sigma, 1, fcTemperature, pH2, pO2, pyProgram, pyModuleName, pyFunctionName); //Cost function is ran.
     C_sum = pre(C_sum) + C;
-// ---- Control sequence to ensure safe operation. ----
-    if SOC > SOC_max then
+// ---- Final control sequence ----
+    if SOC > SOC_max then // If the SOC of the battery is above the maximum allowed limit, the fuel cell is shut down until 2/3 of the allowed interval is reached
       turn_off = true;
     elseif SOC < (SOC_min + (2/3)*(SOC_max-SOC_min)) then
       turn_off = false;
@@ -253,11 +244,11 @@ equation
       turn_off = pre(turn_off);
     end if;
     if turn_off == false then
-      set_current_2 = max(set_current_dcdc_out, I_min_fc_dcdc_out);
+      set_current_2 = max(set_current_dcdc_out, I_min_fc_dcdc_out); //The fuel cell is minimum operated on the lower limited, no matter what the optimization solver outputs
     else
       set_current_2 = 0;
     end if;
-    if set_current_2 < I_min_fc_dcdc_out or t < t_const then
+    if set_current_2 < I_min_fc_dcdc_out or t < t_const then // If time is less then t_const, the fuel cell remains off
       set_current_3 = 0;
     else
       set_current_3 = set_current_2;

@@ -68,7 +68,7 @@ model PowerTrain_ECMS
   Modelica.Blocks.Sources.RealExpression getpO2(y = fuelCellSystem.fuelCellStack.O2_sink.ports[1].p) annotation(
     Placement(visible = true, transformation(origin = {-114, -96}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Math.ContinuousMean continuousMean(u = C_fc_real);
-  VirtualFCS.ECMS_experiment.EMS_ECMS ems_ecms(I_max_FC_stack = 130, I_max_batt = 360,I_min_FC_stack = 20, I_min_batt = -180, I_nom_FC_stack = 100, SOC_max = 0.80, SOC_min = 0.25, n_cell = N_FC_stack, t_const = 0)  annotation(
+  VirtualFCS.ECMS_experiment.EMS_ECMS ems_ecms(I_max_FC_stack = 130, I_max_batt = 360,I_min_FC_stack = 20, I_min_batt = -180, SOC_max = 0.80, SOC_min = 0.25, n_cell = N_FC_stack, t_const = 0)  annotation(
     Placement(visible = true, transformation(origin = {-60, -28}, extent = {{-20, -10}, {20, 10}}, rotation = 0)));
   VirtualFCS.Electrochemical.Hydrogen.FuelCellSystem fuelCellSystem(H_FC_stack = H_FC_stack, I_nom_FC_stack = I_rated_FC_stack, I_rated_FC_stack = i_L_FC_stack,L_FC_stack = L_FC_stack, N_FC_stack = N_FC_stack, V_tank_H2 = V_tank_H2, W_FC_stack = W_FC_stack, p_tank_H2 = p_tank_H2)  annotation(
     Placement(visible = true, transformation(origin = {70, -72}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -125,8 +125,6 @@ equation
     Line(points = {{-102, 20}, {-60, 20}, {-60, -16}}, color = {0, 0, 127}));
   connect(getpH2.y, ems_ecms.p_H2) annotation(
     Line(points = {{-102, 40}, {-50, 40}, {-50, -16}}, color = {0, 0, 127}));
-  connect(batterySystem.sensorOutput, ems_ecms.sensorInputSOC) annotation(
-    Line(points = {{-38, -72}, {-94, -72}, {-94, -28}, {-82, -28}}, color = {0, 0, 127}));
   connect(fc_V.y, division.u2) annotation(
     Line(points = {{124, -26}, {108, -26}, {108, -14}, {94, -14}}, color = {0, 0, 127}));
   connect(batt_V.y, division.u1) annotation(
@@ -141,6 +139,8 @@ equation
     Line(points = {{-102, -76}, {-84, -76}}, color = {0, 0, 127}));
   connect(gain.y, ems_ecms.batteryCurrent) annotation(
     Line(points = {{-74, -76}, {-60, -76}, {-60, -40}}, color = {0, 0, 127}));
+  connect(batterySystem.sensorOutput, ems_ecms.sensorInputSOC) annotation(
+    Line(points = {{-38, -72}, {-92, -72}, {-92, -28}, {-82, -28}}, color = {0, 0, 127}));
 protected
   annotation(
     Icon(graphics = {Text(origin = {-4, -12}, textColor = {0, 0, 255}, extent = {{-150, 120}, {150, 150}}, textString = "%name"), Text(origin = {17, 123}, extent = {{3, 5}, {-3, -5}}, textString = "text"), Rectangle(fillColor = {0, 60, 101}, fillPattern = FillPattern.Solid, lineThickness = 1.5, extent = {{-100, 100}, {100, -100}}, radius = 35), Polygon(fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, points = {{-16.7, 56.9}, {19.3, 56.9}, {5, 11.8}, {28.4, 11.8}, {-18.7, -56.5}, {-20, -56}, {-5.3, -6}, {-28.5, -6}, {-16.7, 56.9}})}, coordinateSystem(initialScale = 0.1)));

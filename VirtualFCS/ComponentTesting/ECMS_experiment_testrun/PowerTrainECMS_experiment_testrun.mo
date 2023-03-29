@@ -72,7 +72,7 @@ model PowerTrainECMS_experiment_testrun
   VirtualFCS.ComponentTesting.ECMSTest.FCSystem fCSystem(I_rated_FC_stack = I_rated_FC_stack, N_FC_stack = N_FC_stack, V_tank_H2 = V_tank_H2, i_L_FC_stack = i_L_FC_stack, p_tank_H2 = p_tank_H2) annotation(
     Placement(visible = true, transformation(origin = {70, -72}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Math.ContinuousMean continuousMean(u = C_fc_real);
-  VirtualFCS.ComponentTesting.ECMS_experiment_testrun.ECMS_experiment_testrun eCMS_experiment_testrun(I_max_FC_stack = 130, I_max_batt = 360,I_min_FC_stack = 20, I_min_batt = -180, I_nom_FC_stack = 100, SOC_max = 0.75, SOC_min = 0.25, n_cell = N_FC_stack, t_const = 0)  annotation(
+  VirtualFCS.ComponentTesting.ECMS_experiment_testrun.ECMS_experiment_testrun eCMS_experiment_testrun(I_max_FC_stack = 130, I_max_batt = 360,I_min_FC_stack = 20, I_min_batt = -180, SOC_max = 0.8, SOC_min = 0.25, n_cell = N_FC_stack, t_const = 0)  annotation(
     Placement(visible = true, transformation(origin = {-60, -28}, extent = {{-20, -10}, {20, 10}}, rotation = 0)));
   Modelica.Blocks.Math.MultiProduct multiProduct(nu = 2)  annotation(
     Placement(visible = true, transformation(origin = {58, -12}, extent = {{-6, -6}, {6, 6}}, rotation = 180)));

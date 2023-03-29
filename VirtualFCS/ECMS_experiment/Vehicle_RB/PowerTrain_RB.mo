@@ -52,7 +52,7 @@ model PowerTrain_RB
   Real eta_DC_DC(unit = "100") = 100 "Efficiency of the DC/DC converter";
   Modelica.Blocks.Sources.RealExpression getBattVoltage(y = batterySystem.pin_p.v) annotation(
     Placement(visible = true, transformation(origin = {-110, -60}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  VirtualFCS.Electrochemical.Hydrogen.FuelCellSystem fuelCellSystem(H_FC_stack = H_FC_stack, I_rated_FC_stack = I_rated_FC_stack, L_FC_stack = L_FC_stack, N_FC_stack = N_FC_stack, V_tank_H2 = V_tank_H2, W_FC_stack = W_FC_stack, i_L_FC_stack = i_L_FC_stack, p_tank_H2 = p_tank_H2) annotation(
+  VirtualFCS.Electrochemical.Hydrogen.FuelCellSystem fuelCellSystem(H_FC_stack = H_FC_stack, I_rated_FC_stack = I_rated_FC_stack, L_FC_stack = L_FC_stack, N_FC_stack = N_FC_stack, V_tank_H2 = V_tank_H2, W_FC_stack = W_FC_stack, p_tank_H2 = p_tank_H2) annotation(
     Placement(visible = true, transformation(origin = {70, -72}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.RealExpression batt_V(y = batterySystem.pin_p.v) annotation(
     Placement(visible = true, transformation(origin = {134, 8}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
@@ -62,7 +62,7 @@ model PowerTrain_RB
     Placement(visible = true, transformation(origin = {42, -8}, extent = {{-6, -6}, {6, 6}}, rotation = 180)));
   Modelica.Blocks.Math.Division division annotation(
     Placement(visible = true, transformation(origin = {82, -8}, extent = {{10, -10}, {-10, 10}}, rotation = 0)));
-  VirtualFCS.ECMS_experiment.EMS_RB ems_rb annotation(
+  VirtualFCS.ECMS_experiment.EMS_RB ems_rb(SOC_max = 0.8, SOC_min = 0.25)  annotation(
     Placement(visible = true, transformation(origin = {-60, -30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.RealExpression getFCVoltage(y = fuelCellSystem.pin_p.v)  annotation(
     Placement(visible = true, transformation(origin = {-110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
