@@ -107,12 +107,37 @@ def ECMS_main(powerDemand, SoC, empty, b_V, sig, empty1, fc_temp, pH2, pO2):
 \t import scipy.optimize
 \t from scipy.optimize import Bounds
 \t import math
+\t import time
+
+\t t1 = time.time()
 
 \t bounds = Bounds([0, float(" + String(I_min_batt) + ")], [float(" + String(I_max_FC_stack - 1) + "), float(" + String(I_max_batt) + ")])
 
 \t cons = {'type':'eq', 'fun' : lambda y : (float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(y[0]/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(max(y[0], 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(y[0]/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + ")))) * y[0]) + (b_V * y[1]) - powerDemand}
 
-\t res = scipy.optimize.minimize(lambda x : (((float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(x[0]/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(abs(max(x[0], 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(x[0]/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + "))))) * x[0]) / (float(" + String(LHV_H2) + ") * (-2.28032634348 * 10**(-16) * x[0]**(6) + 5.29567212538 * 10**(-13) * x[0]**(5) - 4.83584705561 * 10**(-10) * x[0]**(4) + 2.19811746997 * 10**(-7) * x[0]**(3) -5.08697130216 * 10**(-5) * x[0]**(2) + 4.7311314221 * 10**(-3) * x[0] + 0.427083655202))) + (1 - 2*float(" + String(mu) + ")*(SoC - 0.5*(float(" + String(SOC_max) + ") + float(" + String(SOC_min) + ")))/(float(" + String(SOC_max) + ") - float(" + String(SOC_min) + "))) * ((float(sig) * float(b_V) * x[1]) / (float(" + String(LHV_H2) + ")))), numpy.array([0, 0]), method='trust-constr', bounds=bounds, constraints=cons, options = {'maxiter':750})
+\t i_fc_guess = 0
+\t i_fc_guess_temp = 0
+\t i_batt_guess = 0
+\t i_batt_guess_temp = 0
+\t C_guess_pre = 100
+
+\t for i in range(0,int(float(" + String(I_max_FC_stack) + ")), int(float(" + String(I_max_FC_stack) + ")/50)):
+\t \t i_fc_guess_temp = i
+
+\t \t i_batt_guess_temp = (i_fc_guess_temp*(float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(i_fc_guess_temp/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(max(i_fc_guess_temp, 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(i_fc_guess_temp/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + "))))))/(b_V)
+
+\t \t C_guess = (((float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(i_fc_guess_temp/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(abs(max(i_fc_guess_temp, 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(i_fc_guess_temp/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + "))))) * i_fc_guess_temp) / (float(" + String(LHV_H2) + ") * (-2.28032634348 * 10**(-16) * i_fc_guess_temp**(6) + 5.29567212538 * 10**(-13) * i_fc_guess_temp**(5) - 4.83584705561 * 10**(-10) * i_fc_guess_temp**(4) + 2.19811746997 * 10**(-7) * i_fc_guess_temp**(3) -5.08697130216 * 10**(-5) * i_fc_guess_temp**(2) + 4.7311314221 * 10**(-3) * i_fc_guess_temp + 0.427083655202))) + (1 - 2*float(" + String(mu) + ")*(SoC - 0.5*(float(" + String(SOC_max) + ") + float(" + String(SOC_min) + ")))/(float(" + String(SOC_max) + ") - float(" + String(SOC_min) + "))) * ((float(sig) * float(b_V) * i_batt_guess_temp) / (float(" + String(LHV_H2) + "))))
+
+\t \t if C_guess < C_guess_pre:
+\t \t \t C_guess_pre = C_guess
+\t \t \t i_fc_guess = i_fc_guess_temp
+\t \t \t i_batt_guess = i_batt_guess_temp
+
+\t res = scipy.optimize.minimize(lambda x : (((float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(x[0]/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(abs(max(x[0], 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(x[0]/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + "))))) * x[0]) / (float(" + String(LHV_H2) + ") * (-2.28032634348 * 10**(-16) * x[0]**(6) + 5.29567212538 * 10**(-13) * x[0]**(5) - 4.83584705561 * 10**(-10) * x[0]**(4) + 2.19811746997 * 10**(-7) * x[0]**(3) -5.08697130216 * 10**(-5) * x[0]**(2) + 4.7311314221 * 10**(-3) * x[0] + 0.427083655202))) + (1 - 2*float(" + String(mu) + ")*(SoC - 0.5*(float(" + String(SOC_max) + ") + float(" + String(SOC_min) + ")))/(float(" + String(SOC_max) + ") - float(" + String(SOC_min) + "))) * ((float(sig) * float(b_V) * x[1]) / (float(" + String(LHV_H2) + ")))), numpy.array([i_fc_guess, i_batt_guess]), method='trust-constr', bounds=bounds, constraints=cons, options = {'maxiter':40})
+
+\t t2 = time.time()
+
+\t print('Function call time =', (t2-t1))
 
 \t return float(res.x[0])
 
@@ -235,25 +260,25 @@ equation
     //---- The core of ECMS, the cost function is ran ----
     set_current_1 = Py.nineRealArgumentsReturnReal(pyHandle, powerD, SOC, 1, batt_V, sigma, 1, fcTemperature, pH2, pO2, pyProgram, pyModuleName, pyFunctionName); //Cost function is ran.
     C_sum = pre(C_sum) + C;
-// ---- Final control sequence ----
-    if SOC > SOC_max then // If the SOC of the battery is above the maximum allowed limit, the fuel cell is shut down until 2/3 of the allowed interval is reached
-      turn_off = true;
-    elseif SOC < (SOC_min + (2/3)*(SOC_max-SOC_min)) then
-      turn_off = false;
-    else
-      turn_off = pre(turn_off);
-    end if;
-    if turn_off == false then
-      set_current_2 = max(set_current_dcdc_out, I_min_fc_dcdc_out); //The fuel cell is minimum operated on the lower limited, no matter what the optimization solver outputs
-    else
-      set_current_2 = 0;
-    end if;
-    if set_current_2 < I_min_fc_dcdc_out or t < t_const then // If time is less then t_const, the fuel cell remains off
-      set_current_3 = 0;
-    else
-      set_current_3 = set_current_2;
-    end if;
   end when;
+// ---- Final control sequence ----
+  if SOC > SOC_max then // If the SOC of the battery is above the maximum allowed limit, the fuel cell is shut down until 2/3 of the allowed interval is reached
+    turn_off = true;
+  elseif SOC < (SOC_min + (2/3)*(SOC_max-SOC_min)) then
+    turn_off = false;
+  else
+    turn_off = pre(turn_off);
+  end if;
+  if turn_off == false then
+    set_current_2 = max(set_current_dcdc_out, I_min_fc_dcdc_out); //The fuel cell is minimum operated on the lower limited, no matter what the optimization solver outputs
+  else
+    set_current_2 = 0;
+  end if;
+  if set_current_2 < I_min_fc_dcdc_out or t < t_const then // If time is less then t_const, the fuel cell remains off
+    set_current_3 = 0;
+  else
+    set_current_3 = set_current_2;
+  end if;
   connect(slewRateLimiter.y, abs1.u) annotation(
     Line(points = {{74, 0}, {90, 0}}, color = {0, 0, 127}));
   connect(abs1.y, controlOutputFuelCellCurrent) annotation(

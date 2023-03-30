@@ -11,6 +11,8 @@ model Vehicle_ECMS_experiment_testrun
     Placement(visible = true, transformation(origin = {-40, -6.66134e-16}, extent = {{-21, -21}, {21, 21}}, rotation = 0)));
   VirtualFCS.ComponentTesting.ECMS_experiment_testrun.PowerTrainECMS_experiment_testrun powerTrainECMS_experiment_testrun(C_bat_pack = 180, I_rated_FC_stack = 100, N_FC_stack = 180, SOC_init = 0.3, V_max_bat_pack = 54.75, V_min_bat_pack = 37.5, V_nom_bat_pack = 48, V_rated_FC_stack = 116, i_L_FC_stack = 130)  annotation(
     Placement(visible = true, transformation(origin = {40, 0}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
+  Modelica_DeviceDrivers.Blocks.OperatingSystem.RealtimeSynchronize realtimeSynchronize annotation(
+    Placement(visible = true, transformation(origin = {-100, -84}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
 equation
   when time > 0.1 then
 //hydrogen_mass_init = powerTrainECMS.fCSystem.fCSubSystems.subSystemHydrogen.tankHydrogen.m;
