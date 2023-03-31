@@ -111,10 +111,6 @@ def ECMS_main(powerDemand, SoC, empty, b_V, sig, empty1, fc_temp, pH2, pO2):
 
 \t #t1 = time.time()
 
-\t bounds = Bounds([0, float(" + String(I_min_batt) + ")], [float(" + String(I_max_FC_stack - 1) + "), float(" + String(I_max_batt) + ")])
-
-\t cons = {'type':'eq', 'fun' : lambda y : (float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(y[0]/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(max(y[0], 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(y[0]/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + ")))) * y[0]) + (b_V * y[1]) - powerDemand}
-
 \t i_fc_guess = 0
 \t i_fc_guess_temp = 0
 \t i_batt_guess = 0
@@ -133,7 +129,12 @@ def ECMS_main(powerDemand, SoC, empty, b_V, sig, empty1, fc_temp, pH2, pO2):
 \t \t \t i_fc_guess = i_fc_guess_temp
 \t \t \t i_batt_guess = i_batt_guess_temp
 
-\t res = scipy.optimize.minimize(lambda x : (((float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(x[0]/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(abs(max(x[0], 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(x[0]/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + "))))) * x[0]) / (float(" + String(LHV_H2) + ") * (-2.28032634348 * 10**(-16) * x[0]**(6) + 5.29567212538 * 10**(-13) * x[0]**(5) - 4.83584705561 * 10**(-10) * x[0]**(4) + 2.19811746997 * 10**(-7) * x[0]**(3) -5.08697130216 * 10**(-5) * x[0]**(2) + 4.7311314221 * 10**(-3) * x[0] + 0.427083655202))) + (1 - 2*float(" + String(mu) + ")*(SoC - 0.5*(float(" + String(SOC_max) + ") + float(" + String(SOC_min) + ")))/(float(" + String(SOC_max) + ") - float(" + String(SOC_min) + "))) * ((float(sig) * float(b_V) * x[1]) / (float(" + String(LHV_H2) + ")))), numpy.array([i_fc_guess, i_batt_guess]), method='trust-constr', bounds=bounds, constraints=cons, options = {'maxiter':30})
+\t bounds = Bounds([(i_fc_guess - 5), (i_batt_guess - 5)], [(i_fc_guess + 5), (i_batt_guess + 5)])
+
+\t cons = {'type':'eq', 'fun' : lambda y : (float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(y[0]/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(max(y[0], 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(y[0]/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + ")))) * y[0]) + (b_V * y[1]) - powerDemand}
+
+
+\t res = scipy.optimize.minimize(lambda x : (((float(" + String(n_cell) + ")*(float(" + String(U_0) + ") - float(" + String(R) + ")*fc_temp/(2*float(" + String(F) + "))*math.log(pH2*(pO2**0.5)) - (0.85*0.001)*(fc_temp - 298.15) - float(" + String(R_O_FC_stack) + ")*(x[0]/float(" + String(A_FC_surf) + ")) - (float(" + String(R) + ")*fc_temp)/(2*float(" + String(F) + ")*0.3419)*math.log(abs(abs(max(x[0], 0.001)/float(" + String(A_FC_surf) + "))/float(" + String(i_0_FC_stack) + ")) + (float(" + String(R) + ")*1.4672*fc_temp)/(2*float(" + String(F) + "))*math.log(1-(abs(x[0]/float(" + String(A_FC_surf) + "))/float(" + String(i_L_FC_stack) + "))))) * x[0]) / (float(" + String(LHV_H2) + ") * (-2.28032634348 * 10**(-16) * x[0]**(6) + 5.29567212538 * 10**(-13) * x[0]**(5) - 4.83584705561 * 10**(-10) * x[0]**(4) + 2.19811746997 * 10**(-7) * x[0]**(3) -5.08697130216 * 10**(-5) * x[0]**(2) + 4.7311314221 * 10**(-3) * x[0] + 0.427083655202))) + (1 - 2*float(" + String(mu) + ")*(SoC - 0.5*(float(" + String(SOC_max) + ") + float(" + String(SOC_min) + ")))/(float(" + String(SOC_max) + ") - float(" + String(SOC_min) + "))) * ((float(sig) * float(b_V) * x[1]) / (float(" + String(LHV_H2) + ")))), numpy.array([i_fc_guess, i_batt_guess]), method='trust-constr', bounds=bounds, constraints=cons, options = {'maxiter':25})
 
 \t #t2 = time.time()
 
