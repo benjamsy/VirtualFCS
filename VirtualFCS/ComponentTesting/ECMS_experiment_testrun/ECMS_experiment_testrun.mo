@@ -31,7 +31,7 @@ model ECMS_experiment_testrun
   SI.Current i_x_FC_stack = 0.001 "FC stack cell cross-over current";
   SI.Resistance R_O_FC_stack = 0.0923 "FC stack cell ohmic resistance";
   NonSI.Area_cm A_FC_surf = 285 "FC stack surface area";
-  Real i_L_FC_stack(unit"A/cm2") = 1.12 "FC stack cell maximum limiting current A/cm2";
+  Real i_L_FC_stack(unit = "A/cm2") = 1.12 "FC stack cell maximum limiting current A/cm2";
   SI.Voltage U_0 = 1.229 "Theoretical maximum voltage for a single cell";
   SI.Voltage fc_V "FC voltage calculated from FC current output of optimization";
   final SI.Efficiency eta_fc_sys_estimate "Polynomial fit fuel cell system efficiency";
@@ -43,7 +43,7 @@ model ECMS_experiment_testrun
     Dialog(group = "Control Parameters"));
   parameter Real SOC_max(unit = "1") = 0.7 "Maximum allowed SOC of battery" annotation(
     Dialog(group = "Control Parameters"));
-  parameter SI.Current I_min_batt = 500 "Battery min current" annotation(
+  parameter SI.Current I_min_batt = -500 "Battery min current" annotation(
     Dialog(group = "Powertrain Parameters"));
   parameter SI.Current I_max_batt = 500 "Battery max current" annotation(
     Dialog(group = "Powertrain Parameters"));
@@ -52,7 +52,7 @@ model ECMS_experiment_testrun
   Real SOC(unit = "1") "State of charge of battery";
   SI.Voltage batt_V "Battery voltage real";
   SI.Current batt_I "Battery Current real";
-  parameter SI.Resistance internalResistance = 0.028 "Internal resistance of battery real time" annotation(
+  parameter SI.Resistance internalResistance = 0.6e-3 "Internal resistance of battery real time" annotation(
     Dialog(group = "Powertrain Parameters")); //Define this prior to experiment!!
   SI.Current batterySetCurrent "Battery set current calculated by the optimization solver";
   //---- Other side of DCDC ----
@@ -295,10 +295,6 @@ equation
     Icon(graphics = {Rectangle(fillColor = {0, 70, 40}, fillPattern = FillPattern.Solid, lineThickness = 1.5, extent = {{-200, 100}, {200, -100}}, radius = 35), Rectangle(fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-43.2, 41.4}, {43, -45}}, radius = 8), Rectangle(origin = {-35, -3}, fillColor = {255, 0, 0}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{1.4, 58.9}, {4.5, -56.5}}), Rectangle(origin = {-22.2, -3}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{1.4, 58.9}, {4.5, -56.5}}), Rectangle(origin = {-35, -3}, lineColor = {255, 255, 255}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, lineThickness = 0, extent = {{1.4, 58.9}, {4.5, -56.5}}), Rectangle(origin = {-9.5, -3}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{1.4, 58.9}, {4.5, -56.5}}), Rectangle(origin = {3.3, -3}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{1.4, 58.9}, {4.5, -56.5}}), Rectangle(origin = {16.1, -3}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{1.4, 58.9}, {4.5, -56.5}}), Rectangle(origin = {28.85, -3}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{1.4, 58.9}, {4.5, -56.5}}), Rectangle(origin = {0, 30}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-57.7, 1.85}, {57.35, -1.3}}), Rectangle(origin = {0, 17.2}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-57.7, 1.85}, {57.35, -1.3}}), Rectangle(origin = {0, 4.35}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-57.7, 1.85}, {57.35, -1.3}}), Rectangle(origin = {0, -8.45}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-57.7, 1.85}, {57.35, -1.3}}), Rectangle(origin = {0, -21.25}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-57.7, 1.85}, {57.35, -1.3}}), Rectangle(origin = {0, -34.05}, fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-57.7, 1.85}, {57.35, -1.3}}), Rectangle(fillColor = {0, 70, 40}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{39.8, 38.3}, {-40, -41.8}}, radius = 5), Rectangle( fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-27.3, 25.5}, {27, -29}}), Rectangle(fillColor = {0, 70, 40}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-24.1, 22.25}, {23.85, -25.8}})}, coordinateSystem(extent = {{-200, -100}, {200, 100}}, initialScale = 0.1)), Diagram(coordinateSystem(extent = {{-200, -100}, {200, 100}}, initialScale = 0.1)),
     Documentation(info = "<html><head></head><body><div>The EnergyManagementSystem component is designed to manage the flow of power between the fuel cell stack, battery, vehicle load, and balance-of-plant load. It splits the load according to pre-defined energy management rules, which are implemented within the bounds of the battery management system and the fuel cell control unit.</div><div><br></div></body></html>"));
 
-algorithm
-  //if t > pre(t_comp) + 1 then
-    //set_current_1 := delay(Py.nineRealArgumentsReturnReal(pyHandle, powerD, SOC, 1, batt_V, sigma, 1, fcTemperature, pH2, pO2, pyProgram, pyModuleName, pyFunctionName), 0.5, 1); //Cost function is ran.
-  //end if;
   
 
 end ECMS_experiment_testrun;
