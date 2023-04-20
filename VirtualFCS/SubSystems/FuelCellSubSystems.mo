@@ -11,7 +11,7 @@ model FuelCellSubSystems
   parameter Modelica.Units.SI.Mass m_FC_subsystems = subSystemHydrogen.m_system_H2 + subSystemAir.m_system_air + subSystemCooling.m_system_coolant + batterySystem.m_bat_pack;
   parameter Modelica.Units.SI.Volume V_tank_H2 = 0.13 "H2 tank volume";
   parameter Modelica.Units.SI.Pressure p_tank_H2 = 35000000 "H2 tank initial pressure";
-  parameter Real N_FC_stack(unit = "1") = 180 "FC stack number of cells";
+  parameter Real N_FC_stack(unit = "1") = 455 "FC stack number of cells";
   Modelica.Fluid.Interfaces.FluidPort_a H2_port_a(redeclare package Medium = Anode_Medium) annotation(
     Placement(visible = true, transformation(origin = {-66, 60}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-70, 90}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Fluid.Interfaces.FluidPort_b H2_port_b(redeclare package Medium = Anode_Medium) annotation(

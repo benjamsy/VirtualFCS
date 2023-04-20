@@ -1,5 +1,3 @@
 BatteryElectricVehicle
-BatteryElectricVehicle_JoystickControl
-HybridVehicle_CDCS_control
-HybridVehicle_ECMS_control
 RangeExtenderHybridVehicle
+BatteryElectricVehicle_JoystickControl

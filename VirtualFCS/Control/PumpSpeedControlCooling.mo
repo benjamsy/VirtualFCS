@@ -2,15 +2,15 @@ within VirtualFCS.Control;
 
 block PumpSpeedControlCooling
   parameter Real k = 1 "Control Gain";
-  parameter Real Td = 0.1 "Time Constant of Derivative Block";
-  parameter Real Ti = 0.1 "Time Constant of Integral Block";
+  parameter Modelica.Units.SI.Time Td = 0.1 "Time Constant of Derivative Block";
+  parameter Modelica.Units.SI.Time Ti = 0.1 "Time Constant of Integral Block";
   Modelica.Blocks.Interfaces.RealInput setMassFlow annotation(
     Placement(visible = true, transformation(origin = {-100, 40}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-110, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Interfaces.RealInput getMassFlow annotation(
     Placement(visible = true, transformation(origin = {-100, -20}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-110, -50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Interfaces.RealOutput setPumpSpeed annotation(
     Placement(visible = true, transformation(origin = {110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Continuous.LimPID limPID(Ni = 0.1,Td = Td, Ti = Ti, controllerType = Modelica.Blocks.Types.SimpleController.PI, initType = Modelica.Blocks.Types.Init.InitialOutput, k = k, yMax = 1, yMin = 0, y_start = 1) annotation(
+  Modelica.Blocks.Continuous.LimPID limPID(Ni = 0.1,Td = Td, Ti = Ti, controllerType = Modelica.Blocks.Types.SimpleController.PI, initType = Modelica.Blocks.Types.Init.InitialOutput, k = k, yMax = 1, yMin = 0, y_start = 0.005) annotation(
     Placement(visible = true, transformation(origin = {-30, 30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
 equation
   connect(setMassFlow, limPID.u_s) annotation(
