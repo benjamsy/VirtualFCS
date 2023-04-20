@@ -7,7 +7,7 @@ model Vehicle_RB_experiment_testrun
   Real fuel_consumption(unit = "kg/100km", start = 0) "The total fuel consumption at the end of simulation";
   Real hydrogen_mass_init(unit = "kg", start = 0) "Initial value of hydrogen mass in tank";
   Real eta_vehicle(unit = "100") "Vehicle efficiency";
-  VirtualFCS.ComponentTesting.ECMS_experiment_testrun.DriveCycle_experiment_testrun driveCycle_experiment_testrun(fileName = "C:/Users/benjamins/OneDrive - SINTEF/Documents/Virtual-FCS/EMS/Experiment_2023_drivecycle.mat", tableName = "drivecycle") annotation(
+  VirtualFCS.ComponentTesting.ECMS_experiment_testrun.DriveCycle_experiment_testrun driveCycle_experiment_testrun(fileName = "C:/Users/benjamins/OneDrive - SINTEF/Documents/HyOPT/XInTheLoop/XInTheLoop/Resources/Data/DriveProfile.mat", tableName = "X") annotation(
     Placement(visible = true, transformation(origin = {-40, -6.66134e-16}, extent = {{-21, -21}, {21, 21}}, rotation = 0)));
   VirtualFCS.ComponentTesting.RB_experiment_testrun.PowerTrainRB powerTrainRB(C_bat_pack = 180, I_rated_FC_stack = 100, N_FC_stack = 180, SOC_init = 0.3, V_max_bat_pack = 54.75, V_min_bat_pack = 37.5, V_nom_bat_pack = 48, V_rated_FC_stack = 116, i_L_FC_stack = 130)  annotation(
     Placement(visible = true, transformation(origin = {40, 0}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
