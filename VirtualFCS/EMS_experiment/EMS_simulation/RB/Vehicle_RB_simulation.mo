@@ -9,15 +9,15 @@ model Vehicle_RB_simulation
   Modelica.Units.SI.Efficiency eta_vehicle "Vehicle efficiency";
   VirtualFCS.EMS_experiment.DriveCycle_EMS_experiment driveCycle_EMS_experiment(fileName = "C:/Users/benjamins/OneDrive - SINTEF/Documents/HyOPT/XInTheLoop/XInTheLoop/Resources/Data/DriveProfile.mat", tableName = "X") annotation(
     Placement(visible = true, transformation(origin = {-40, 3.33067e-16}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
-  VirtualFCS.EMS_experiment.EMS_simulation.RB.PowerTrain_RB_simulation powerTrain_RB_simulation(C_bat_pack = 180, SOC_init = 0.3, V_max_bat_pack = 54.75, V_min_bat_pack = 37.5, V_nom_bat_pack = 48)  annotation(
+  VirtualFCS.EMS_experiment.EMS_simulation.RB.PowerTrain_RB_simulation powerTrain_RB_simulation(C_bat_pack = 180, SOC_init = 0.3, V_max_bat_pack = 54.75, V_min_bat_pack = 37.5, V_nom_bat_pack = 48, V_tank_H2 = 0.074, p_tank_H2 = 9300000)  annotation(
     Placement(visible = true, transformation(origin = {40, 1.77636e-15}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
 equation
-  //when time > 0.1 then
-    //hydrogen_mass_init = powerTrain_RB_simulation.fuelCellSystem.fuelCellSubSystems.subSystemHydrogen.tankHydrogen.m;
-  //end when;
-  //when terminal() then
-    //fuel_consumption = (hydrogen_mass_init - powerTrain_RB_simulation.fuelCellSystem.fuelCellSubSystems.subSystemHydrogen.tankHydrogen.m)/max((vehicleProfile.x*0.00001), 0.01);
-  //end when;
+//when time > 0.1 then
+//hydrogen_mass_init = powerTrain_RB_simulation.fuelCellSystem.fuelCellSubSystems.subSystemHydrogen.tankHydrogen.m;
+//end when;
+//when terminal() then
+//fuel_consumption = (hydrogen_mass_init - powerTrain_RB_simulation.fuelCellSystem.fuelCellSubSystems.subSystemHydrogen.tankHydrogen.m)/max((vehicleProfile.x*0.00001), 0.01);
+//end when;
   if driveCycle_EMS_experiment.P > 0 then
     eta_vehicle = max(((driveCycle_EMS_experiment.P)/max((driveCycle_EMS_experiment.P + (powerTrain_RB_simulation.Power_del_DC_DC*(1 - (powerTrain_RB_simulation.eta_drivetrain*0.01))) + (driveCycle_EMS_experiment.P*(1 - driveCycle_EMS_experiment.eff_drivetrain))), 0.00001))*100, 0);
   else

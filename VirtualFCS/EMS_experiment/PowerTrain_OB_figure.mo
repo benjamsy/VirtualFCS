@@ -1,6 +1,6 @@
-within VirtualFCS.EMS_experiment.EMS_simulation.RB;
+within VirtualFCS.EMS_experiment;
 
-model PowerTrain_RB_simulation
+model PowerTrain_OB_figure
   // System
   outer Modelica.Fluid.System system "System properties";
   // Powertrain parameters
@@ -51,12 +51,17 @@ model PowerTrain_RB_simulation
     Dialog(group = "Battery Pack Parameters"));
   parameter Real SOC_init = 0.5 "Battery pack initial state of charge" annotation(
     Dialog(group = "Battery Pack Parameters"));
+  final Real C_fc_real(start = 0, unit = "g/s");
+  final Real k_b_real(start = 0, unit = "1");
+  final Real C_batt_real(start = 0, unit = "g/s");
+  final Real C_real(start = 0, unit = "g/s");
+  final Real sigma(start = 0, unit = "1");
   Modelica.Electrical.Analog.Interfaces.PositivePin pin_p annotation(
     Placement(visible = true, transformation(origin = {42, 96}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-90, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Electrical.Analog.Interfaces.NegativePin pin_n annotation(
     Placement(visible = true, transformation(origin = {-40, 96}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-90, -50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Electrical.Analog.Basic.Ground ground annotation(
-    Placement(visible = true, transformation(origin = {-68, 4}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Placement(visible = true, transformation(origin = {-68, 78}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   VirtualFCS.Electrochemical.Battery.BatterySystem batterySystem(C_bat_pack = C_bat_pack, Cp_bat_pack = Cp_bat_pack, H_bat_pack = H_bat_pack, L_bat_pack = L_bat_pack, SOC_init = SOC_init, V_max_bat_pack = V_max_bat_pack, V_min_bat_pack = V_min_bat_pack, V_nom_bat_pack = V_nom_bat_pack, W_bat_pack = W_bat_pack, m_bat_pack = m_bat_pack) annotation(
     Placement(visible = true, transformation(origin = {-28, -72}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   VirtualFCS.Electrical.DCConverter converter(vDCref = V_HV_Bus) annotation(
@@ -67,35 +72,42 @@ model PowerTrain_RB_simulation
   Modelica.Units.SI.Power Power_del_DC_DC "Power delivered from the DC/DC converter";
   Modelica.Units.SI.Power Power_FC "Power delivered from the FC system";
   Modelica.Units.SI.Power Power_batt "Power delivered from the batt system";
+  Modelica.Units.SI.Power Power_FC_batt "Power delivered from the fc and battery system";
   Modelica.Units.SI.Efficiency eta_drivetrain "Efficiency of the drivetrain";
   Modelica.Units.SI.Efficiency eta_DC_DC = 1 "Efficiency of the DC/DC converter";
-  VirtualFCS.EMS_experiment.EMS_RB ems_rb(SOC_max = 0.95, SOC_min = 0.31, ramp_up = 5) annotation(
-    Placement(visible = true, transformation(origin = {-70, -30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Sources.RealExpression getFCVoltage(y = fuelCellSystem.pin_p.v) annotation(
+  VirtualFCS.EMS_experiment.EMS_ECMS ems_ecms(I_max_FC_stack = 130, I_max_batt = 360, I_min_FC_stack = 15, I_min_batt = -180, SOC_max = 0.8, SOC_min = 0.25, n_cell = N_FC_stack, t_const = 40) annotation(
+    Placement(visible = true, transformation(origin = {-51, -6.5}, extent = {{-27, -13.5}, {27, 13.5}}, rotation = 0)));
+  Modelica.Blocks.Sources.RealExpression getpH2(y = fuelCellSystem.fuelCellStack.p_H2) annotation(
+    Placement(visible = true, transformation(origin = {-110, 40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Blocks.Sources.RealExpression getFCTemp(y = fuelCellSystem.fuelCellStack.temperatureSensor.T) annotation(
+    Placement(visible = true, transformation(origin = {-110, 20}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Blocks.Sources.RealExpression getPowerRequest(y = converter.powerDC2) annotation(
     Placement(visible = true, transformation(origin = {-110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.RealExpression getBattVoltage(y = batterySystem.pin_p.v) annotation(
     Placement(visible = true, transformation(origin = {-110, -60}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Sources.RealExpression batt_V(y = batterySystem.pin_p.v) annotation(
-    Placement(visible = true, transformation(origin = {122, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
-  Modelica.Blocks.Sources.RealExpression fc_V(y = fuelCellSystem.pin_p.v) annotation(
-    Placement(visible = true, transformation(origin = {122, -40}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
-  Modelica.Blocks.Math.Product product annotation(
-    Placement(visible = true, transformation(origin = {38, -16}, extent = {{-8, -8}, {8, 8}}, rotation = 180)));
-  Modelica.Blocks.Math.Division division annotation(
-    Placement(visible = true, transformation(origin = {72, -20}, extent = {{8, -8}, {-8, 8}}, rotation = 0)));
-  VirtualFCS.Electrochemical.Hydrogen.FuelCellSystem fuelCellSystem(H_FC_stack = H_FC_stack, I_nom_FC_stack = I_nom_FC_stack, I_rated_FC_stack = I_rated_FC_stack, L_FC_stack = L_FC_stack, N_FC_stack = N_FC_stack, V_tank_H2 = V_tank_H2, W_FC_stack = W_FC_stack, m_FC_stack = m_FC_stack, p_tank_H2 = p_tank_H2)  annotation(
+  Modelica.Blocks.Sources.RealExpression getBattCurrent(y = batterySystem.pin_n.i) annotation(
+    Placement(visible = true, transformation(origin = {-110, -80}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Blocks.Sources.RealExpression getpO2(y = fuelCellSystem.fuelCellStack.p_O2) annotation(
+    Placement(visible = true, transformation(origin = {-110, -100}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  VirtualFCS.Electrochemical.Hydrogen.FuelCellSystem fuelCellSystem(H_FC_stack = H_FC_stack, I_nom_FC_stack = I_nom_FC_stack, I_rated_FC_stack = I_rated_FC_stack, L_FC_stack = L_FC_stack, N_FC_stack = N_FC_stack, V_tank_H2 = V_tank_H2, W_FC_stack = W_FC_stack, m_FC_stack = m_FC_stack, p_tank_H2 = p_tank_H2) annotation(
     Placement(visible = true, transformation(origin = {62, -72}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
 equation
+  C_fc_real = (Power_FC)/(ems_ecms.LHV_H2*(fuelCellSystem.eta_FC_sys*0.01));
+  k_b_real = 1 - 2*ems_ecms.mu*((ems_ecms.SOC - 0.5*(ems_ecms.SOC_min + ems_ecms.SOC_max))/((ems_ecms.SOC_min - ems_ecms.SOC_max)));
+  sigma = ems_ecms.sigma;
+  C_batt_real = (sigma*Power_batt)/(ems_ecms.LHV_H2);
+  C_real = C_fc_real + (k_b_real*C_batt_real);
   Power_del_DC_DC = converter.dc_p1.i*converter.dc_p1.v;
   Power_FC = fuelCellSystem.pin_n.i*fuelCellSystem.pin_p.v;
   Power_batt = batterySystem.pin_n.i*batterySystem.pin_p.v;
+  Power_FC_batt = Power_batt + Power_FC;
   if Power_del_DC_DC > 0 then
-    eta_drivetrain = min(max(((Power_del_DC_DC)/max((Power_FC + Power_batt + ((Power_FC*(1 - (fuelCellSystem.eta_FC_sys))) + (Power_batt*(1 - (batterySystem.eta_batt))) + (Power_del_DC_DC*(1 - (eta_DC_DC))))), 0.000001)), 0), 1);
+    eta_drivetrain = min(max(((Power_del_DC_DC)/max((Power_FC + Power_batt + ((Power_FC*(1 - (fuelCellSystem.eta_FC_sys*0.01))) + (Power_batt*(1 - (batterySystem.eta_batt*0.01))) + (Power_del_DC_DC*(1 - (eta_DC_DC*0.01))))), 0.000001))*100, 0), 100);
   else
-    eta_drivetrain = min(max(((-Power_del_DC_DC)/max((Power_FC - Power_batt + ((Power_FC*(1 - (fuelCellSystem.eta_FC_sys))) - (Power_batt*(1 - (batterySystem.eta_batt))) - (Power_del_DC_DC*(1 - (eta_DC_DC))))), 0.000001)), 0), 1);
+    eta_drivetrain = min(max(((-Power_del_DC_DC)/max((Power_FC - Power_batt + ((Power_FC*(1 - (fuelCellSystem.eta_FC_sys*0.01))) - (Power_batt*(1 - (batterySystem.eta_batt*0.01))) - (Power_del_DC_DC*(1 - (eta_DC_DC*0.01))))), 0.000001))*100, 0), 100);
   end if;
   connect(pin_n, ground.p) annotation(
-    Line(points = {{-40, 96}, {-68, 96}, {-68, 14}}, color = {0, 0, 255}));
+    Line(points = {{-40, 96}, {-68, 96}, {-68, 88}}, color = {0, 0, 255}));
   connect(converter.dc_n2, batterySystem.pin_n) annotation(
     Line(points = {{-6, 20}, {-6, -22}, {-32, -22}, {-32, -62}}, color = {0, 0, 255}));
   connect(converter.dc_p2, batterySystem.pin_p) annotation(
@@ -108,27 +120,27 @@ equation
     Line(points = {{12, -34}, {-24, -34}, {-24, -62}}, color = {0, 0, 255}));
   connect(converter.dc_p1, pin_p) annotation(
     Line(points = {{6, 40}, {42, 40}, {42, 96}}, color = {0, 0, 255}));
-  connect(batterySystem.sensorOutput, ems_rb.sensorSOC) annotation(
-    Line(points = {{-38, -72}, {-92, -72}, {-92, -30}, {-82, -30}}, color = {0, 0, 127}));
-  connect(getFCVoltage.y, ems_rb.sensorFCVoltage) annotation(
-    Line(points = {{-98, 0}, {-90, 0}, {-90, -22}, {-82, -22}}, color = {0, 0, 127}));
-  connect(getBattVoltage.y, ems_rb.sensorBattVoltage) annotation(
-    Line(points = {{-98, -60}, {-90, -60}, {-90, -38}, {-82, -38}}, color = {0, 0, 127}));
-  connect(ems_rb.controlInterface, product.u2) annotation(
-    Line(points = {{-58, -30}, {-44, -30}, {-44, 0}, {56, 0}, {56, -12}, {48, -12}}, color = {0, 0, 127}));
-  connect(batt_V.y, division.u1) annotation(
-    Line(points = {{111, 0}, {100, 0}, {100, -16}, {82, -16}}, color = {0, 0, 127}));
-  connect(fc_V.y, division.u2) annotation(
-    Line(points = {{111, -40}, {100, -40}, {100, -24}, {82, -24}}, color = {0, 0, 127}));
-  connect(division.y, product.u1) annotation(
-    Line(points = {{64, -20}, {48, -20}}, color = {0, 0, 127}));
-  connect(product.y, dC_converter.I_Ref) annotation(
-    Line(points = {{30, -16}, {22, -16}, {22, -32}}, color = {0, 0, 127}));
+  connect(getBattVoltage.y, ems_ecms.batteryVoltage) annotation(
+    Line(points = {{-98, -60}, {-64.5, -60}, {-64.5, -23}}, color = {0, 0, 127}));
+  connect(batterySystem.sensorOutput, ems_ecms.sensorInputSOC) annotation(
+    Line(points = {{-38, -72}, {-92, -72}, {-92, -6.5}, {-81, -6.5}}, color = {0, 0, 127}));
   connect(dC_converter.pin_nBus, fuelCellSystem.pin_n) annotation(
     Line(points = {{32, -54}, {58, -54}, {58, -62}}, color = {0, 0, 255}));
   connect(dC_converter.pin_pBus, fuelCellSystem.pin_p) annotation(
     Line(points = {{32, -34}, {68, -34}, {68, -62}}, color = {0, 0, 255}));
+  connect(getBattCurrent.y, ems_ecms.batteryCurrent) annotation(
+    Line(points = {{-98, -80}, {-51, -80}, {-51, -23}}, color = {0, 0, 127}));
+  connect(ems_ecms.controlOutputFuelCellCurrent, dC_converter.I_Ref) annotation(
+    Line(points = {{-23, -6.5}, {22, -6.5}, {22, -32}}, color = {0, 0, 127}));
+  connect(getPowerRequest.y, ems_ecms.powerRequest) annotation(
+    Line(points = {{-98, 0}, {-84, 0}, {-84, 18}, {-64, 18}, {-64, 10}}, color = {0, 0, 127}));
+  connect(getFCTemp.y, ems_ecms.fcTemperature) annotation(
+    Line(points = {{-98, 20}, {-50, 20}, {-50, 10}}, color = {0, 0, 127}));
+  connect(getpH2.y, ems_ecms.p_H2) annotation(
+    Line(points = {{-98, 40}, {-44, 40}, {-44, 32}, {-38, 32}, {-38, 10}}, color = {0, 0, 127}));
+  connect(getpO2.y, ems_ecms.p_O2) annotation(
+    Line(points = {{-98, -100}, {-44, -100}, {-44, -40}, {-38, -40}, {-38, -22}}, color = {0, 0, 127}));
 protected
   annotation(
     Icon(graphics = {Text(origin = {-4, -12}, textColor = {0, 0, 255}, extent = {{-150, 120}, {150, 150}}, textString = "%name"), Text(origin = {17, 123}, extent = {{3, 5}, {-3, -5}}, textString = "text"), Rectangle(fillColor = {0, 60, 101}, fillPattern = FillPattern.Solid, lineThickness = 1.5, extent = {{-100, 100}, {100, -100}}, radius = 35), Polygon(fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, points = {{-16.7, 56.9}, {19.3, 56.9}, {5, 11.8}, {28.4, 11.8}, {-18.7, -56.5}, {-20, -56}, {-5.3, -6}, {-28.5, -6}, {-16.7, 56.9}})}, coordinateSystem(initialScale = 0.1)));
-end PowerTrain_RB_simulation;
+end PowerTrain_OB_figure;
