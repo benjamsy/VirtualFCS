@@ -9,9 +9,9 @@ model Vehicle_OB_simulation
   Modelica.Units.SI.Efficiency eta_vehicle "Vehicle efficiency";
   VirtualFCS.EMS_experiment.DriveCycle_EMS_experiment driveCycle_EMS_experiment(fileName = "C:/Users/benjamins/OneDrive - SINTEF/Documents/HyOPT/XInTheLoop/XInTheLoop/Resources/Data/DriveProfile.mat", tableName = "X") annotation(
     Placement(visible = true, transformation(origin = {-40, 0}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
-  VirtualFCS.EMS_experiment.EMS_simulation.OB.PowerTrain_OB_simulation powerTrain_OB_simulation(C_bat_pack = 180, SOC_init = 0.3, V_max_bat_pack = 54.75, V_min_bat_pack = 37.5, V_nom_bat_pack = 48, V_tank_H2 = 0.074, p_tank_H2 = 3800000)  annotation(
+  VirtualFCS.EMS_experiment.EMS_simulation.OB.PowerTrain_OB_simulation powerTrain_OB_simulation(C_bat_pack = 180, SOC_init = 0.3, V_max_bat_pack = 54.75, V_min_bat_pack = 37.5, V_nom_bat_pack = 48, V_tank_H2 = 1, p_tank_H2 = 3800000)  annotation(
     Placement(visible = true, transformation(origin = {40, 1.77636e-15}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
-equation
+equation//V_tank_H2 = 0.074
 //when time > 0.1 then
 //hydrogen_mass_init = rangeExtenderPowerTrain.fuelCellSystem.fuelCellSubSystems.subSystemHydrogen.tankHydrogen.m;
 //end when;

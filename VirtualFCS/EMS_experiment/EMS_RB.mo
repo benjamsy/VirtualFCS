@@ -42,7 +42,7 @@ equation
   
   if time >= 50 then
     slewRateLimiter.u = switch1.y;
-    controlInterface = max(abs1.y, 500);
+    controlInterface = max(abs1.y, 2500);
   else
     slewRateLimiter.u = 0;
     controlInterface = 0;
